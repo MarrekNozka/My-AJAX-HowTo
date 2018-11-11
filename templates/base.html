@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <title></title>
+  <meta charset="utf-8">
+  <meta name="description" content="my AJAX how to">
+  <link rel="shortcut icon"
+        href="{{ url_for('static', filename='icons8-source-code-48.png') }}" />
+
+  <script src="{{ url_for('static', filename='jquery.js') }}"></script>
+
+<style>
+#time {
+  border: solid 1px #eee;
+  display: block;
+  width: 80vw;
+  height: 50vh;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+
+#load { 
+  position: absolute;
+  background-color: #eee;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-image: url({{ url_for('static', filename='load.gif') }});
+}
+
+</style>
+<script>
+
+loadjson = function(data){
+  {#alert(JSON.stringify(data))#}
+  $('#data').text('')
+  var ul = $('<ul>').appendTo('#data');
+  $.each(data, function(i, data){
+    var li = $('<li>').appendTo(ul);
+    var strong = $('<strong>').appendTo(li);
+    strong.text(i);
+    strong.after(': ' + data)
+    {#console.log(i, data);#}
+  })
+  $('#load').hide();
+}
+failjson = function(){
+  $('#data').text('Error');
+  $('#load').hide();
+}
+
+$().ready(function(){
+  $('#load').hide();
+
+  $('#buttons button').click(function(event){
+    $('#load').show();
+    $.getJSON('/time.json', {location: $(this).text() }, loadjson).fail(failjson);
+  });
+
+});
+
+</script>
+
+</head>
+
+
+
+<body>
+
+
+  <h1>My AJAX HowTo <a href="{{ url_for('index') }}">/</a></h1>
+    <p>How look JSON data:
+    <a href=time.json>time.json</a>
+    <a href=time.json?location=Africa>locaion=Africa</a>
+    <a href=time.json?location=America>locaion=America</a>
+    <a href=time.json?location=Asia>locaion=Asia</a>
+    <a href=time.json?location=Australia>locaion=Australia</a>
+    <a href=time.json?location=Europe>locaion=Europe</a>
+    </p>
+
+    <div id='time'>
+      <div id="load"></div>
+      <div id="data"></div>
+    </div>
+    <p id="buttons"> Get time AT:
+    <button>Africa</button>
+    <button>America</button>
+    <button>Asia</button>
+    <button>Australia</button>
+    <button>Europe</button>
+    <button>ERROR</button>
+    </p>
+
+</body>
+</html>
