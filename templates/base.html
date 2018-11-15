@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="cs">
 <head>
-  <title></title>
+  <title>AJAX HowTo</title>
   <meta charset="utf-8">
-  <meta name="description" content="my AJAX how to">
+
   <link rel="shortcut icon"
         href="{{ url_for('static', filename='icons8-source-code-48.png') }}" />
 
@@ -13,11 +13,13 @@
 #time {
   border: solid 1px #eee;
   display: block;
-  width: 80vw;
-  height: 50vh;
-  margin-left: auto;
-  margin-right: auto;
+  width: 75%;
+  height: 70vh;
+  margin-left: 0;
+  margin-right: 5%;
   position: relative;
+  overflow: auto;
+  float: right;
 }
 
 #load { 
@@ -32,26 +34,61 @@
   background-image: url({{ url_for('static', filename='load.gif') }});
 }
 
+#buttons {
+  width: 18%;
+  text-align: right;
+  margin-right: 1ex;
+}
+#buttons button {
+  margin: 0.5ex;
+}
+
+#location {
+  width: 18%;
+  text-align: right;
+  margin-right: 1ex;
+}
+
+.cal {
+  width: 80%;
+  margin: auto;
+}
+h2 .cal {
+  clear: both;
+  padding-top: 3em;
+}
+
 </style>
 <script>
 
+{# tato funkce dostane dato od getJSON #}
 loadjson = function(data){
+
   {#alert(JSON.stringify(data))#}
+  {#console.log(i, data);#}
+
+  $('#location strong').text(data['location']);
+  $('#location strong').text(data.location);
+
   $('#data').text('')
   var ul = $('<ul>').appendTo('#data');
-  $.each(data, function(i, data){
+  $.each(data.data, function(i, data){
     var li = $('<li>').appendTo(ul);
     var strong = $('<strong>').appendTo(li);
     strong.text(i);
     strong.after(': ' + data)
-    {#console.log(i, data);#}
   })
   $('#load').hide();
 }
+
+
+{# pokud getJSON skončí chybou#}
 failjson = function(){
   $('#data').text('Error');
+  $('#location strong').text('???');
   $('#load').hide();
 }
+
 
 $().ready(function(){
   $('#load').hide();
@@ -61,6 +98,14 @@ $().ready(function(){
     $.getJSON('/time.json', {location: $(this).text() }, loadjson).fail(failjson);
   });
 
+  $('#ajax-cal').click(function(event){
+    $.getJSON('/calculate.json', { 
+      a: $('input[name="a"]').val(),
+      b: $('input[name="b"]').val() }, function(data){
+        $('#result').text(data['result']);
+      }
+    );
+  })
 });
 
 </script>
@@ -74,26 +119,50 @@ $().ready(function(){
 
   <h1>My AJAX HowTo <a href="{{ url_for('index') }}">/</a></h1>
     <p>How look JSON data:
-    <a href=time.json>time.json</a>
-    <a href=time.json?location=Africa>locaion=Africa</a>
-    <a href=time.json?location=America>locaion=America</a>
-    <a href=time.json?location=Asia>locaion=Asia</a>
-    <a href=time.json?location=Australia>locaion=Australia</a>
-    <a href=time.json?location=Europe>locaion=Europe</a>
+    <a href="time.json">time.json</a>
+    <a href="time.json?location=Africa">locaion=Africa</a>
+    <a href="time.json?location=America">locaion=America</a>
+    <a href="time.json?location=Asia">locaion=Asia</a>
+    <a href="time.json?location=Australia">locaion=Australia</a>
+    <a href="time.json?location=Europe">locaion=Europe</a>
     </p>
 
     <div id='time'>
       <div id="load"></div>
       <div id="data"></div>
     </div>
-    <p id="buttons"> Get time AT:
-    <button>Africa</button>
-    <button>America</button>
-    <button>Asia</button>
-    <button>Australia</button>
-    <button>Europe</button>
-    <button>ERROR</button>
+    <p id="location"><strong>???</strong>:</p>
+    <p id="buttons"> Get time AT:<br />
+    <button>Africa</button><br />
+    <button>America</button><br />
+    <button>Asia</button><br />
+    <button>Australia</button><br />
+    <button>Europe</button><br />
+    <button>ERROR</button><br />
     </p>
+
+<section id="cal">
+
+  <h2>Calculate</h2>
+  <a href="calculate.json?a=1.0015&b=2.14009">calculate.json?a=1.0015&b=2.14009</a>
+  <form>
+    <p>
+      <input type="text" size="5" name="a" value="1.0015"> +
+      <input type="text" size="5" name="b" value="2.14009"> =
+      <span id="result">{{ c }}</span>
+    </p>
+    <p>
+      <button>Clasics</button>
+    </p>
+  </form>
+  <p>
+    <button id="ajax-cal">Caltulate via AJAX</button>
+  </p>
+
+</section>
+
+
 
 </body>
 </html>
+
