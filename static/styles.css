@@ -1,0 +1,30 @@
+body {
+    font-family: monospace;
+    font-size: 300%;
+}
+
+
+#face {
+	stroke-width: 2px; 
+    fill: #eee;
+    stroke: #000; 
+}
+#hour, #min, #sec {
+	stroke-width: 1px; fill: #333; stroke: #555;
+}
+#sec { stroke: #f55; }
+
+
+
+#yellow {
+    position: relative;
+    background-color: yellow;
+    width: 500px;
+    height: 500px;
+}
+#red {
+    position: relative;
+    background-color: red;
+    width: 20px;
+    height: 20px;
+}

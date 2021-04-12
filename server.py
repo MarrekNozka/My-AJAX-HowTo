@@ -3,7 +3,13 @@
 # Licence: GNU/GPL
 ############################################################################
 
-from flask import (Flask, render_template, request, abort, )
+from flask import (
+    Flask,
+    render_template,
+    request,
+    # abort,
+    make_response,
+)
 from flask.json import jsonify
 from datetime import datetime
 import pytz
@@ -12,39 +18,40 @@ from random import uniform
 
 app = Flask(__name__)
 ############################################################################
-LOCATIONS = {'Africa': ['Addis_Ababa', 'Blantyre', 'Djibouti',
-                        'Tunis', 'Windhoek'],
-             'America': ['Adak', 'Atka', 'Hermosillo', 'Menominee',
-                         'New_York'],
-             'Asia': ['Baku', 'Kabul', 'Jerusalem', 'Seoul', 'Tokyo'],
-             'Australia': ['North', 'West', 'Sydney', 'South', 'Victoria'],
-             'Europe': ['Prague', 'Berlin', 'Dublin', 'Kiev', 'Skopje'],
-             }
+LOCATIONS = {
+    "Africa": ["Addis_Ababa", "Blantyre", "Djibouti", "Tunis", "Windhoek"],
+    "America": ["Adak", "Atka", "Hermosillo", "Menominee", "New_York"],
+    "Asia": ["Baku", "Kabul", "Jerusalem", "Seoul", "Tokyo"],
+    "Australia": ["North", "West", "Sydney", "South", "Victoria"],
+    "Europe": ["Prague", "Berlin", "Dublin", "Kiev", "Skopje"],
+}
 
 
-@app.route('/calculate.json')
-@app.route('/')
+@app.route("/calculate.json")
+@app.route("/")
 def index():
-    c = '???'
-    a = request.args.get('a')
-    b = request.args.get('b')
+    c = "???"
+    a = request.args.get("a")
+    b = request.args.get("b")
     if a and b:
         try:
             c = float(a) + float(b)
         except:
-            c = '???'
-    if 'calculate' in request.path:
+            c = "???"
+    if "calculate" in request.path:
         return jsonify(result=c)
     else:
-        return render_template('base.html', c=c)
+        return render_template("base.html", c=c)
 
 
-@app.route('/time.json')
+@app.route("/time.json")
 def makeAJAX():
-    loc_timezone = pytz.timezone('Europe/Prague')
+    sleep(uniform(0.2, 1.1))  # náhodnou dobu čekám
+
+    loc_timezone = pytz.timezone("Europe/Prague")
     loc_dt = loc_timezone.localize(datetime.now())
     data = {}
-    location = request.args.get('location')
+    location = request.args.get("location")
     if location is str:
         location = location.capitalize()
     # if location in LOCATIONS:
@@ -60,13 +67,29 @@ def makeAJAX():
             if location in timezone:
                 timezone_tz = pytz.timezone(timezone)
                 timezone_dt = loc_dt.astimezone(timezone_tz)
-                city = timezone[len(location)+1:]
-                data[city] = timezone_dt.strftime('%H:%M:%S %Z%z')
-        sleep(uniform(0.2, 1.1))
+                city = timezone[len(location) + 1 :]
+                data[city] = timezone_dt.strftime("%H:%M:%S %Z%z")
         return jsonify(location=location, data=data)
-    return abort(400)
+    now = datetime.now()
+    resp = make_response(
+        jsonify(
+            {
+                "datetime": {
+                    "day": now.day,
+                    "month": now.month,
+                    "year": now.year,
+                    "weekday": now.weekday(),
+                    "hour": now.hour,
+                    "minute": now.minute,
+                    "second": now.second,
+                }
+            }
+        )
+    )
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    return resp
 
 
 ############################################################################
-if __name__ == '__main__':
-    app.run(host='127.0.0.1', debug=True)
+if __name__ == "__main__":
+    app.run(host="127.0.0.1", debug=True)
